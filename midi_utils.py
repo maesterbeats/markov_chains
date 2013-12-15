@@ -2,7 +2,7 @@ __author__ = 'andrewstern'
 
 import MIDI
 import math
-
+import os, glob
 from collections import OrderedDict
 
 
@@ -32,10 +32,13 @@ def filter_duplicates_from_score(score, filter, sort_value, return_params):
 	return new_score
 
 
-def midi_parse(midi_file):
+midi_params = {'note' : 4, 'duration' : 2}
+
+def midi_parse(midi_file,param):
+	return_param = midi_params.get(param)
 	score = open_midi(midi_file)
 	ticks_per_beat = score[0]
-	filtered_score = filter_duplicates_from_score(score, 'note', 1, 4)
+	filtered_score = filter_duplicates_from_score(score, 'note', 1, return_param)
 	sorted_filtered_score = OrderedDict(sorted(filtered_score.items(), key=lambda t: t[0]))
 
 	return sorted_filtered_score, ticks_per_beat
@@ -104,3 +107,47 @@ def get_measure_from_midi(midi_file, measure):
 	parsed_measure = ticks_to_beats(sc,m_len)
 
 	return parsed_measure
+
+def find_files(folder = None, extension = None):
+
+	'''
+	Find all of a given extension in a directory
+	@param folder:
+	@param extension:
+	@return: list of files
+	'''
+	if folder:
+		os.chdir(folder)
+	else:
+		folder = ''
+	if extension:
+		pass
+	else:
+		extension = ''
+
+	cur_dir = os.getcwd()
+	search_pattern = '{0}/*{1}'.format(cur_dir,extension)
+
+	track_list = {}
+	for match in glob.glob(search_pattern):
+		(dirname, filename) = os.path.split(match)
+		(shortname, extension) = os.path.splitext(filename)
+		track_list[shortname] = match
+	return track_list
+
+
+def greatest(notes):
+	max = 0
+	for note in notes:
+		if note > max:
+			max = note
+	return max
+
+
+
+def select_highest_notes(score):
+	filtered_score = []
+	score = score[0]
+	for k in score:
+		filtered_score.append(greatest(score[k]))
+	return filtered_score
