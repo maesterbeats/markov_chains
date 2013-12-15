@@ -7,6 +7,8 @@ from markov_generators import markov
 
 
 
+
+
 def make_transition_matrix(phrase,order):
 
 	if type(phrase) == str:
